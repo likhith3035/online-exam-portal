@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBKRIST — Examination Hall</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background-color: #f1f5f9;
+      user-select: none; /* Prevent text selection during test */
+      -webkit-user-select: none;
+    }
+
+    .exam-nav {
+      background: var(--slate-900);
+      color: var(--white);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-md);
+    }
+
+    .timer-badge {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 2px solid var(--primary-500);
+      border-radius: var(--radius-md);
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 1px;
+    }
+
+    .timer-badge.urgent {
+      border-color: var(--danger-500);
+      color: var(--danger-500);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .exam-hall-layout {
+      max-width: 1400px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .question-panel {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      padding: 32px;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .q-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--slate-100);
+      margin-bottom: 22px;
+    }
+
+    .q-index-pill {
+      background: var(--primary-100);
+      color: var(--primary-700);
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+    }
+
+    .question-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--slate-900);
+      line-height: 1.5;
+      margin-bottom: 26px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .option-card {
+      border: 2px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--slate-50);
+    }
+
+    .option-card:hover {
+      border-color: var(--primary-500);
+      background: var(--white);
+    }
+
+    .option-card.selected {
+      border-color: var(--primary-600);
+      background: var(--primary-50);
+    }
+
+    .radio-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--slate-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--slate-700);
+      background: var(--white);
+      flex-shrink: 0;
+    }
+
+    .option-card.selected .radio-circle {
+      border-color: var(--primary-600);
+      background: var(--primary-600);
+      color: var(--white);
+    }
+
+    .option-text {
+      font-size: 15px;
+      color: var(--slate-800);
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .exam-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--slate-100);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Sidebar Palette */
+    .palette-panel {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      position: sticky;
+      top: 86px;
+    }
+
+    .palette-header h4 {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 16px;
+    }
+
+    .palette-legend {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--slate-600);
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--slate-100);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-answered { background: var(--success-500); }
+    .dot-review { background: var(--purple-600); }
+    .dot-unvisited { background: var(--slate-300); }
+    .dot-current { background: var(--primary-600); }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .palette-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--slate-300);
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .palette-btn:hover {
+      border-color: var(--primary-500);
+    }
+
+    .palette-btn.active {
+      outline: 3px solid var(--primary-500);
+      outline-offset: 1px;
+    }
+
+    .palette-btn.answered {
+      background: var(--success-500);
+      color: var(--white);
+      border-color: var(--success-600);
+    }
+
+    .palette-btn.review {
+      background: var(--purple-600);
+      color: var(--white);
+      border-color: var(--purple-600);
+    }
+
+    .proctor-alert {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #b91c1c;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-xl);
+      font-weight: 700;
+      font-size: 14px;
+      z-index: 9999;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { top: -60px; }
+      to { top: 20px; }
+    }
+
+    @media (max-width: 900px) {
+      .exam-hall-layout { grid-template-columns: 1fr; }
+      .palette-panel { position: static; }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+  <!-- Proctor Warning Alert Banner -->
+  <div id="proctorAlert" class="proctor-alert">
+    ⚠ Warning: Tab switch or window minimization detected! Action logged.
+  </div>
+
+  <!-- Sticky Exam Header -->
+  <nav class="exam-nav">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div class="nav-logo-badge" style="width: 38px; height: 38px;">
+        <img src="images/logo.png" alt="NBKRIST Logo">
+      </div>
+      <div>
+        <h2 style="font-size: 16px; font-weight: 700;" id="navExamTitle">Exam in Progress</h2>
+        <span style="font-size: 12px; color: var(--slate-400);" id="navStudentRoll">Candidate Roll: ST001</span>
+      </div>
+    </div>
+
+    <!-- Live Timer Display -->
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div class="timer-badge" id="timerBadge">
+        <span>⏱</span>
+        <span id="timerCountdown">--:--</span>
+      </div>
+      <button class="btn btn-danger" onclick="promptFinishExam()">Finish & Submit Exam</button>
+    </div>
+  </nav>
+
+  <!-- Exam Hall Workspace -->
+  <main class="exam-hall-layout">
+    <!-- Active Question Card -->
+    <div class="question-panel">
+      <div>
+        <div class="q-top-meta">
+          <div>
+            <span class="q-index-pill" id="qCurrentPill">Question 1 of 5</span>
+            <span style="font-size: 12px; color: var(--slate-500); margin-left: 10px;" id="qMarksPill">+1 Mark</span>
+          </div>
+          <div>
+            <label style="font-size: 13px; font-weight: 600; color: var(--purple-600); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+              <input type="checkbox" id="reviewCheckbox" onchange="toggleMarkForReview()">
+              Mark for Review
+            </label>
+          </div>
+        </div>
+
+        <h3 class="question-title" id="qTitleText">Loading question content...</h3>
+
+        <div class="options-list" id="optionsListContainer">
+          <!-- Options rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Action Navigation Buttons -->
+      <div class="exam-actions">
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" id="btnPrev" onclick="navigateQuestion(-1)">← Previous</button>
+          <button class="btn btn-outline" onclick="clearCurrentSelection()">Clear Selection</button>
+        </div>
+        <div>
+          <button class="btn btn-primary" id="btnNext" onclick="navigateQuestion(1)">Save & Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar: Question Navigator Palette -->
+    <div class="palette-panel">
+      <div class="palette-header">
+        <h4>Question Navigator</h4>
+      </div>
+
+      <div class="palette-legend">
+        <div class="legend-item"><span class="dot dot-answered"></span> Answered</div>
+        <div class="legend-item"><span class="dot dot-review"></span> In Review</div>
+        <div class="legend-item"><span class="dot dot-unvisited"></span> Unanswered</div>
+        <div class="legend-item"><span class="dot dot-current"></span> Current</div>
+      </div>
+
+      <div class="palette-grid" id="paletteGridContainer">
+        <!-- Palette number buttons -->
+      </div>
+
+      <div style="background: var(--slate-50); border-radius: var(--radius-md); padding: 14px; text-align: center;">
+        <div style="font-size: 12px; color: var(--slate-500); margin-bottom: 6px;">COMPLETION PROGRESS</div>
+        <div style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--primary-700);" id="progressText">
+          0 / 5 Answered
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: CONFIRM FINISH EXAM -->
+  <div class="modal-overlay" id="finishModal">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>Submit Examination?</h3>
+        <button class="close-btn" onclick="closeModal('finishModal')">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <p style="font-size: 15px; color: var(--slate-700); margin-bottom: 16px;">
+          Are you ready to submit your exam? Once submitted, your answers will be evaluated immediately.
+        </p>
+        <div class="exam-specs" id="submitSummarySpecs">
+          <!-- Filled dynamically with answered vs unanswered counts -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('finishModal')">Keep Working</button>
+        <button type="button" class="btn btn-danger btn-lg" id="confirmSubmitBtn" onclick="submitExamFinal()">
+          Confirm & Submit →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/exam.js"></script>
+</body>
+</html>

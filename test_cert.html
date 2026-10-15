@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Certificate Calibration Test</title>
+  <style>
+    body { font-family: sans-serif; background: #f1f5f9; padding: 20px; text-align: center; }
+    .controls { margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    canvas { border: 2px solid #0f2e5a; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-width: 100%; height: auto; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>NBKRIST Certificate Alignment Calibration</h2>
+  <div class="controls">
+    <label>Name Y: <input type="number" id="nameY" value="340" onchange="redraw()"></label>
+    <label>Roll & Dept Y: <input type="number" id="rollY" value="377" onchange="redraw()"></label>
+    <label>Exam Y: <input type="number" id="examY" value="412" onchange="redraw()"></label>
+    <label>Date Y: <input type="number" id="dateY" value="518" onchange="redraw()"></label>
+  </div>
+  <canvas id="certCanvas" width="1024" height="682"></canvas>
+
+  <script>
+    const canvas = document.getElementById('certCanvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.src = 'images/certificate_template.jpg';
+    img.onload = () => redraw();
+
+    function redraw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, 1024, 682);
+
+      const nameY = Number(document.getElementById('nameY').value);
+      const rollY = Number(document.getElementById('rollY').value);
+      const examY = Number(document.getElementById('examY').value);
+      const dateY = Number(document.getElementById('dateY').value);
+
+      ctx.fillStyle = '#0f2e5a';
+
+      // 1. Candidate Full Name
+      ctx.font = 'bold 22px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('RAHUL KUMAR REDDY', 512, nameY);
+
+      // 2. Roll Number
+      ctx.font = 'bold 15px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('21AK1A0501', 352, rollY);
+
+      // 3. Department
+      ctx.font = 'bold 14px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Computer Science & Engineering', 771, rollY);
+
+      // 4. Exam Title
+      ctx.font = 'bold 15px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Data Structures & Algorithms Online Examination', 638, examY);
+
+      // 5. Date
+      ctx.font = 'bold 14px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('08 October 2026', 521, dateY);
+    }
+  </script>
+</body>
+</html>

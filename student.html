@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBKRIST — Student Examination Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .student-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .student-hero {
+      background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 100%);
+      color: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-lg);
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .hero-details h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .hero-details p {
+      color: var(--primary-100);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .student-id-pill {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .exams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .exam-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .exam-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-500);
+    }
+
+    .exam-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .exam-card-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--slate-900);
+      line-height: 1.3;
+    }
+
+    .exam-card-desc {
+      font-size: 13px;
+      color: var(--slate-600);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .exam-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: var(--slate-50);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .spec-item span:first-child {
+      color: var(--slate-500);
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .spec-item span:last-child {
+      font-weight: 700;
+      color: var(--slate-900);
+      font-size: 14px;
+    }
+
+    .rules-box {
+      background: var(--warning-100);
+      border-left: 4px solid var(--warning-500);
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      margin: 16px 0;
+      font-size: 13px;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo-badge">
+        <img src="images/logo.png" alt="NBKRIST Logo">
+      </div>
+      <div class="nav-title-group">
+        <h1>N.B.K.R. Institute of Science & Technology</h1>
+        <p>Student Online Examination Hub</p>
+      </div>
+    </div>
+    <div class="nav-user-info">
+      <span class="user-badge" id="studentBadge">
+        <span class="role-tag">STUDENT</span>
+        <span id="studentNavName">Student</span>
+      </span>
+      <button class="btn btn-secondary btn-sm" onclick="API.logout()">Logout ↩</button>
+    </div>
+  </header>
+
+  <main class="student-layout">
+    <!-- Hero Profile Section -->
+    <section class="student-hero">
+      <div class="hero-details">
+        <h2>Welcome, <span id="studentGreetingName">Student</span> 👋</h2>
+        <p>Access your scheduled department examinations and view verified score records.</p>
+        <div class="student-id-pill" id="studentRollPill">Roll No: Loading...</div>
+      </div>
+      <div>
+        <span style="font-size: 48px;">📚</span>
+      </div>
+    </section>
+
+    <!-- Available Exams Section -->
+    <section>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="section-title" style="margin-bottom: 0;">
+          <span>📝</span> Available Examinations
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshStudent" onclick="refreshStudentPortal()">
+          🔄 Refresh
+        </button>
+      </div>
+      <div class="exams-grid" id="examsGridContainer">
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--slate-400);">Loading available exams...</div>
+      </div>
+    </section>
+
+    <!-- Past Exam Records Section -->
+    <section style="margin-top: 40px;">
+      <div class="section-title">
+        <span>🏆</span> My Examination History & Scorecards
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Exam Name</th>
+              <th>Score Obtained</th>
+              <th>Percentage</th>
+              <th>Result</th>
+              <th>Time Taken</th>
+              <th>Submission Date</th>
+              <th>Scorecard</th>
+            </tr>
+          </thead>
+          <tbody id="myResultsTableBody">
+            <tr><td colspan="7" style="text-align: center; color: var(--slate-400); padding: 24px;">No completed exams found yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: EXAM INSTRUCTIONS BEFORE STARTING -->
+  <div class="modal-overlay" id="instructionsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalExamName">Exam Instructions</h3>
+        <button class="close-btn" onclick="closeModal('instructionsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="exam-specs" id="modalExamSpecs">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div class="rules-box">
+          <strong>⚠ Important Examination Regulations:</strong>
+          <ul style="margin: 8px 0 0 18px; line-height: 1.6;">
+            <li>Once started, the examination countdown timer runs continuously on the server and <strong>cannot be paused</strong>.</li>
+            <li>Refreshing or closing the browser window will <strong>not</strong> reset the timer.</li>
+            <li>When the timer reaches <code>00:00</code>, all answers will be automatically evaluated and submitted.</li>
+            <li>Only <strong>one attempt</strong> is permitted per student. Duplicate submissions are strictly prevented.</li>
+            <li>Your scorecard will be generated immediately and registered in the institutional grade database.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('instructionsModal')">Cancel</button>
+        <button type="button" class="btn btn-primary btn-lg" id="modalStartExamBtn" onclick="confirmStartExam()">
+          START EXAMINATION NOW →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/student.js"></script>
+</body>
+</html>

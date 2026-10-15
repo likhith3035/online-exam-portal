@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBKRIST — Examination Scorecard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .result-layout {
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+
+    .scorecard {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .result-header {
+      background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 100%);
+      color: var(--white);
+      padding: 36px 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .result-status-badge {
+      display: inline-block;
+      font-size: 22px;
+      font-weight: 800;
+      padding: 8px 28px;
+      border-radius: var(--radius-full);
+      margin-top: 14px;
+      letter-spacing: 1px;
+    }
+
+    .status-pass {
+      background: var(--success-500);
+      color: var(--white);
+      box-shadow: 0 6px 18px rgba(34, 197, 94, 0.4);
+    }
+
+    .status-fail {
+      background: var(--danger-500);
+      color: var(--white);
+      box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+    }
+
+    .result-body {
+      padding: 36px 30px;
+    }
+
+    .score-circle-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .score-box {
+      background: radial-gradient(circle, var(--slate-50) 0%, #e2e8f0 100%);
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      border: 6px solid var(--primary-600);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .score-digits {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1;
+    }
+
+    .score-sub {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-pill {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-pill .val {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .stat-pill .lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--slate-500);
+    }
+
+    .review-card-container {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-md);
+      padding: 30px;
+    }
+
+    .star-rating {
+      display: flex;
+      gap: 8px;
+      font-size: 32px;
+      cursor: pointer;
+      color: var(--slate-300);
+      margin: 12px 0 18px;
+    }
+
+    .star-rating .star {
+      transition: var(--transition);
+    }
+
+    .star-rating .star.hovered,
+    .star-rating .star.selected {
+      color: var(--accent-gold);
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo-badge">
+        <img src="images/logo.png" alt="NBKRIST Logo">
+      </div>
+      <div class="nav-title-group">
+        <h1>N.B.K.R. Institute of Science & Technology</h1>
+        <p>Examination Performance & Result Scorecard</p>
+      </div>
+    </div>
+    <div>
+      <a href="student.html" class="btn btn-secondary btn-sm">← Back to Student Hub</a>
+    </div>
+  </header>
+
+  <main class="result-layout">
+    <!-- Scorecard Card -->
+    <div class="scorecard">
+      <div class="result-header">
+        <h2 style="font-family: var(--font-display); font-size: 24px; margin-bottom: 4px;" id="resExamName">
+          Examination Performance Report
+        </h2>
+        <p style="color: var(--primary-100); font-size: 14px;" id="resStudentInfo">Candidate: Loading...</p>
+        <div>
+          <span class="result-status-badge status-pass" id="resStatusBadge">PASS ✓</span>
+        </div>
+      </div>
+
+      <div class="result-body">
+        <div class="score-circle-container">
+          <div class="score-box" id="scoreCircle">
+            <div class="score-digits" id="resScoreDigits">0 / 0</div>
+            <div class="score-sub" id="resPercentageText">0% Marks</div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="stats-grid">
+          <div class="stat-pill">
+            <div class="lbl">Total Questions</div>
+            <div class="val" id="resTotalQ">0</div>
+          </div>
+          <div class="stat-pill">
+            <div class="lbl">Correct Answers</div>
+            <div class="val" style="color: var(--success-600);" id="resCorrect">0</div>
+          </div>
+          <div class="stat-pill">
+            <div class="lbl">Wrong Answers</div>
+            <div class="val" style="color: var(--danger-600);" id="resWrong">0</div>
+          </div>
+          <div class="stat-pill">
+            <div class="lbl">Unanswered</div>
+            <div class="val" style="color: var(--slate-500);" id="resUnanswered">0</div>
+          </div>
+          <div class="stat-pill">
+            <div class="lbl">Time Taken</div>
+            <div class="val" style="font-size: 18px;" id="resTimeTaken">0m 0s</div>
+          </div>
+        </div>
+
+        <div style="background: var(--slate-50); border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--slate-200); text-align: center;">
+          <p style="font-size: 13px; color: var(--slate-600); margin-bottom: 4px;">
+            📧 An official evaluation scorecard copy has also been sent to your registered institutional email.
+          </p>
+          <small style="color: var(--slate-400);">Marks and attendance have been successfully committed to the Excel master database.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review & Feedback Section -->
+    <div class="review-card-container" id="reviewBox">
+      <h3 style="font-family: var(--font-display); font-size: 18px; color: var(--slate-900);">
+        ⭐ Share Your Examination Feedback
+      </h3>
+      <p style="font-size: 13px; color: var(--slate-500); margin-top: 4px;">
+        Help the NBKRIST Examination Cell enhance future test experiences.
+      </p>
+
+      <div class="star-rating" id="starRating">
+        <span class="star" data-rating="1">★</span>
+        <span class="star" data-rating="2">★</span>
+        <span class="star" data-rating="3">★</span>
+        <span class="star" data-rating="4">★</span>
+        <span class="star" data-rating="5">★</span>
+      </div>
+
+      <div class="form-group">
+        <textarea id="feedbackText" class="form-control" rows="3" placeholder="How was your exam experience? E.g., Questions were clear, timer was smooth..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="reviewFeedbackMessage" style="font-size: 13px; color: var(--success-600); font-weight: 600;"></span>
+        <button type="button" class="btn btn-primary" id="btnSubmitReview" onclick="submitReview()">
+          Submit Review →
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/result.js"></script>
+</body>
+</html>

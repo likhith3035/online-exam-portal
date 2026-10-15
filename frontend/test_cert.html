@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NBKRIST Certificate Generator Preview</title>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #f8fafc; padding: 30px; text-align: center; }
+    .card { background: #1e293b; border-radius: 12px; padding: 24px; max-width: 1060px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; text-align: left; }
+    label { font-size: 12px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 4px; }
+    input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 14px; box-sizing: border-box; }
+    canvas { width: 100%; max-width: 1024px; height: auto; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .btn-group { margin-top: 18px; display: flex; gap: 12px; justify-content: center; }
+    .btn { padding: 10px 22px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; }
+    .btn-primary { background: #3b82f6; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin-top: 0; color: #60a5fa;">🎓 Official NBKRIST Certificate Generator</h2>
+    <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
+      Interactive preview with student credentials superimposed on the official template.
+    </p>
+
+    <div class="inputs">
+      <div>
+        <label>Candidate Full Name</label>
+        <input type="text" id="certName" value="K. VENKATESWARA RAO" oninput="drawCertificate()">
+      </div>
+      <div>
+        <label>Roll Number / ID</label>
+        <input type="text" id="certRoll" value="21AK1A0589" oninput="drawCertificate()">
+      </div>
+      <div>
+        <label>Department / Branch</label>
+        <input type="text" id="certDept" value="Computer Science & Engineering" oninput="drawCertificate()">
+      </div>
+      <div>
+        <label>Examination Title</label>
+        <input type="text" id="certExam" value="Data Structures & Algorithms Online Examination" oninput="drawCertificate()">
+      </div>
+      <div>
+        <label>Date of Examination</label>
+        <input type="text" id="certDate" value="08 October 2026" oninput="drawCertificate()">
+      </div>
+    </div>
+
+    <canvas id="certCanvas" width="2048" height="1364"></canvas>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="downloadCert()">📥 Download Certificate (HD PNG)</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('certCanvas');
+    const ctx = canvas.getContext('2d');
+    const templateImg = new Image();
+    templateImg.src = 'images/certificate_template.jpg';
+
+    templateImg.onload = () => {
+      drawCertificate();
+    };
+
+    function drawCertificate() {
+      // Scale: 2x HD resolution (2048 x 1364)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(templateImg, 0, 0, 2048, 1364);
+
+      const name = (document.getElementById('certName').value || '').trim();
+      const roll = (document.getElementById('certRoll').value || '').trim();
+      const dept = (document.getElementById('certDept').value || '').trim();
+      const exam = (document.getElementById('certExam').value || '').trim();
+      const date = (document.getElementById('certDate').value || '').trim();
+
+      ctx.fillStyle = '#0a2240'; // Deep NBKRIST Institutional Navy
+
+      // 1. Candidate Full Name (Centered over line at X=518, Y=341 on 1024x682 => X=1036, Y=672 on 2x)
+      ctx.font = 'bold 44px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.letterSpacing = '1px';
+      ctx.fillText(name.toUpperCase(), 1036, 672);
+
+      // 2. Roll No (Centered over line at X=350, Y=379 => X=700, Y=748 on 2x)
+      ctx.font = 'bold 30px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(roll.toUpperCase(), 700, 748);
+
+      // 3. Department (Centered over line at X=772, Y=379 => X=1544, Y=748 on 2x)
+      // Auto shrink font if department name is long
+      let deptFontSize = 28;
+      ctx.font = `bold ${deptFontSize}px "Times New Roman", Georgia, serif`;
+      while (ctx.measureText(dept).width > 480 && deptFontSize > 18) {
+        deptFontSize -= 2;
+        ctx.font = `bold ${deptFontSize}px "Times New Roman", Georgia, serif`;
+      }
+      ctx.fillText(dept, 1544, 748);
+
+      // 4. Examination Title (Centered over line at X=527, Y=428 => X=1054, Y=846 on 2x)
+      let examFontSize = 30;
+      ctx.font = `bold ${examFontSize}px "Times New Roman", Georgia, serif`;
+      while (ctx.measureText(exam).width > 700 && examFontSize > 18) {
+        examFontSize -= 2;
+        ctx.font = `bold ${examFontSize}px "Times New Roman", Georgia, serif`;
+      }
+      ctx.fillText(exam, 1054, 846);
+
+      // 5. Date (Centered over line at X=519, Y=487 => X=1038, Y=964 on 2x)
+      ctx.font = 'bold 28px "Times New Roman", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(date, 1038, 964);
+    }
+
+    function downloadCert() {
+      const roll = (document.getElementById('certRoll').value || 'NBKRIST').trim().replace(/[^a-zA-Z0-9]/g, '_');
+      const link = document.createElement('a');
+      link.download = `NBKRIST_Certificate_${roll}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+    }
+  </script>
+</body>
+</html>
